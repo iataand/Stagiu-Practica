@@ -1,4 +1,3 @@
-// #include <dirent.h>
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +18,7 @@ void writeEntry(char *date) // function to print the entry for a date
   int ch; // will be used to iterate through the txt file character by character
 
   if (fp == NULL) // check if the file exists
-    printf("Entry not found at specified date.\n");
+    printf("Nu a fost gasita o intrare la data specificata.\n");
 
   while ((ch = fgetc(fp)) != EOF) // executes until ch -> -1 which is equivalent
                                   // to reaching the end of file
@@ -27,15 +26,20 @@ void writeEntry(char *date) // function to print the entry for a date
 }
 
 void addEntry(char *date, char *text) {
-  FILE *fp = fopen(date, "w+"); // opens the file in read and write mode
+  char path[20];
+  strcpy(path, "./entries/");
+  strcat(path, date);
+  strcat(path, ".txt");
+
+  FILE *fp = fopen(path, "w+"); // opens the file in read and write mode
   int ch = fgetc(fp);
 
   if (ch != -1) // check if there already is an entry at the specified date
-    printf("Entry already found at the specified date. Would you like to "
-           "modify it?\n");
+    printf("A fost gasita deja o intrare la aceasta data. Doriti sa o "
+           "modificati?\n");
   else {
     fputs(text, fp); // writes the given text to the file
-    printf("Entry updated succesfully!\n");
+    printf("Intrarea a fost adaugata cu succes.\n");
   }
   fclose(fp);
 }
@@ -86,6 +90,7 @@ int main() {
         int i = 2, j = 1, optiune2 = -1;
         system("cls");
         printf("\nSelectati una dintre optiunile de mai jos: \n\n");
+        char **files = findEntries();
 
         while (strcmp(files[i], "|") != 0)
           printf("(%d)%s\n", j++, files[i++]);
@@ -95,10 +100,10 @@ int main() {
         printf("\n#: ");
         scanf("%d", &optiune2);
 
-        if (optiune2 <= j && optiune2 >= 1) {
+        if (optiune2 < j && optiune2 >= 1) {
           system("cls");
           writeEntry(files[optiune2 + 1]);
-          printf("\n(1)Alegeti o noua data.           (2)Reveniti la meniul "
+          printf("\n(1)Alegeti o noua data.           (2)Reveniti la meniul."
                  "principal.\n");
 
           int x;
@@ -108,9 +113,25 @@ int main() {
           if (x == 2)
             break;
 
-        } else
+        } else if (optiune2 == j)
+          break;
+
+        else
           printf("\nVa rog selectati o optiune valida.\n");
       }
+    } else if (optiune == 2) {
+      char text[250], data[25];
+      system("cls");
+      printf("Introduceti textul:\n");
+
+      fflush(stdin);
+      scanf("%[^\n]", text);
+
+      printf("Introduceti data(ZZ/LL/AA): ");
+      fflush(stdin);
+      scanf("%[^\n]", data);
+
+      addEntry(data, text);
     }
   }
 
